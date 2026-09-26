@@ -1,0 +1,191 @@
+VERSION "BMW i3 SBOX Local-CAN 0.1"
+
+
+NS_ :
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_SGTYPE_
+	BA_DEF_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: SBOX SME ZombieVerter
+
+BA_DEF_ BO_ "GenMsgCycleTime" INT 0 100000;
+BA_DEF_ BO_ "GenMsgCycleTimeFast" INT 0 100000;
+BA_DEF_ "DBName" STRING ;
+BA_DEF_ "BusType" STRING ;
+BA_DEF_ "ProtocolType" STRING ;
+BA_DEF_DEF_ "GenMsgCycleTime" 0;
+BA_DEF_DEF_ "GenMsgCycleTimeFast" 0;
+BA_DEF_DEF_ "DBName" "";
+BA_DEF_DEF_ "BusType" "CAN";
+BA_DEF_DEF_ "ProtocolType" "CAN";
+
+BA_ "DBName" "BMW_i3_SBOX_LocalCAN";
+BA_ "BusType" "CAN";
+BA_ "ProtocolType" "CAN";
+
+
+BO_ 256 SBOX_PackVoltage: 8 SBOX
+ SG_ Pack_V : 0|16@1+ (0.001,0) [0|65.535] "V" ZombieVerter
+ SG_ Pack_mV : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ Pack_Raw32 : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+ SG_ Pack_Alive : 36|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ Pack_Flags : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Pack_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Pack_CRC : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 272 SBOX_OutputVoltage: 8 SBOX
+ SG_ Output_V : 0|16@1+ (0.001,0) [0|65.535] "V" ZombieVerter
+ SG_ Output_mV : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
+ SG_ Output_Raw32 : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+ SG_ Output_Alive : 36|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ Output_Flags : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Output_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Output_CRC : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 288 SBOX_OutputCompanion: 8 SBOX
+ SG_ Companion_i16 : 0|16@1- (1,0) [-32768|32767] "" Vector__XXX
+ SG_ Companion_i32 : 0|32@1- (1,0) [-2147483648|2147483647] "" Vector__XXX
+ SG_ Companion_Alive : 36|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ Companion_Flags : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Companion_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Companion_CRC : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 304 SBOX_PackCurrent: 8 SBOX
+ SG_ Pack_Current : 0|16@1- (0.001,0) [-32.768|32.767] "A" ZombieVerter
+ SG_ Pack_Current_mA : 0|16@1- (1,0) [-32768|32767] "mA" Vector__XXX
+ SG_ Current_Raw32 : 0|32@1- (1,0) [-2147483648|2147483647] "" Vector__XXX
+ SG_ Current_Alive : 36|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ Current_Flags : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Current_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Current_CRC : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 80 SBOX_050: 6 SBOX
+ SG_ S050_B0 : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S050_B1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S050_B2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S050_B3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S050_B4 : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S050_B5 : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 320 SBOX_140: 8 SBOX
+ SG_ S140_B0 : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S140_B1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S140_B2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S140_B3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S140_Alive : 36|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ S140_B5 : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S140_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S140_CRC : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 368 SBOX_170: 8 SBOX
+ SG_ S170_B0 : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S170_B1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S170_B2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S170_B3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S170_B4 : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S170_B5 : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S170_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S170_CRC : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 309 SBOX_135_Timer: 8 SBOX
+ SG_ SessionTimer_s : 0|8@1+ (1,0) [0|255] "s" Vector__XXX
+ SG_ S135_B1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S135_B2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S135_B3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S135_B4 : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S135_B5 : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S135_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S135_B7 : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 528 SBOX_210_Static: 8 SBOX
+ SG_ S210_B0 : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S210_B1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S210_B2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S210_B3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S210_B4 : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S210_B5 : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S210_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ S210_B7 : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 336 SME_150: 4 SME
+ SG_ SME150_B0 : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ SME150_B1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ SME150_B2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ SME150_B3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 352 SME_160: 4 SME
+ SG_ SME160_B0 : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ SME160_B1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ SME160_B2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ SME160_B3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BA_ "GenMsgCycleTime" BO_ 256 2;
+BA_ "GenMsgCycleTime" BO_ 272 2;
+BA_ "GenMsgCycleTime" BO_ 288 2;
+BA_ "GenMsgCycleTime" BO_ 304 2;
+BA_ "GenMsgCycleTime" BO_ 80 21;
+BA_ "GenMsgCycleTime" BO_ 320 21;
+BA_ "GenMsgCycleTime" BO_ 368 103;
+BA_ "GenMsgCycleTime" BO_ 309 1030;
+BA_ "GenMsgCycleTime" BO_ 528 1030;
+BA_ "GenMsgCycleTime" BO_ 336 20;
+BA_ "GenMsgCycleTime" BO_ 352 1000;
+
+CM_ "BMW i3 SBOX (PN 61278648904) private Local-CAN at 500 kbit/s. Not the PHEV SBox 0x100/0x300 protocol. Contactors are GPIO, not CAN. Version 0.1 - 2026-09-26.";
+CM_ BU_ SBOX "Pack-internal safety / contactor box. Emits measurement frames with only +12V on pins 7/8.";
+CM_ BU_ SME "Speicher Management Elektronik. Optional. Not required to read HV.";
+CM_ BU_ ZombieVerter "Intended VCU listener.";
+
+CM_ BO_ 256 "Pack / battery-side voltage. Three 0-30 V ramps on battery posts peaked 31552 mV. Stays ~0.1 V when PSU is on the output posts. Map to Zombie udc2.";
+CM_ BO_ 272 "Vehicle / output-side voltage. Follows output-side PSU ramps. Peaked ~17.5 V on every 30 V output sweep so far - scale or sense point still to confirm. Map to Zombie udc.";
+CM_ BO_ 288 "Tracks output-side voltage on V sweeps. Not traction current. Do not map to idc. Scale unconfirmed - raw signed values only.";
+CM_ BO_ 304 "Pack current through the shunt. 1 count = 1 mA. Use only when Current_Flags == 0x00. Current_Flags == 0x80 is a sentinel (~every 10th frame) - discard analog. Battery-side 10 A -> +10447. Car-side 10 A -> -10305. Map to Zombie idc.";
+CM_ BO_ 80 "Almost always 40 54 FF FF DF FF. Period matches the 0x130 sentinel cadence.";
+CM_ BO_ 320 "After wake: 01 00 FF FF plus alive/CRC. Looks like alive / measurement-valid.";
+CM_ BO_ 368 "Typically 00 00 00 xx 50 81 05 plus CRC.";
+CM_ BO_ 309 "B0 ticks by 1 per second (session timer).";
+CM_ BO_ 528 "Static 75 69 00 05 06 5F 01 03 in every log so far.";
+CM_ BO_ 336 "SME only. Constant FD F4 40 A7 in the captured logs.";
+CM_ BO_ 352 "SME only. Constant 00 00 00 0E in the captured logs.";
+
+CM_ SG_ 256 Pack_V "u16le(B0,B1) / 1000. Zombie: udc2.";
+CM_ SG_ 272 Output_V "u16le(B0,B1) / 1000. Zombie: udc. Confirm against a meter; 17.5 V cap seen on bench.";
+CM_ SG_ 304 Pack_Current "i16le(B0,B1) / 1000 amps. IGNORE this signal when Current_Flags == 0x80.";
+CM_ SG_ 304 Current_Flags "0x00 = analog valid. 0x80 = sentinel, discard current.";
+CM_ SG_ 256 Pack_Alive "B4 high nibble, 0-F wrap.";
+CM_ SG_ 272 Output_Alive "B4 high nibble, 0-F wrap.";
+CM_ SG_ 288 Companion_Alive "B4 high nibble, 0-F wrap.";
+CM_ SG_ 304 Current_Alive "B4 high nibble, 0-F wrap.";
+CM_ SG_ 309 SessionTimer_s "Increments by 1 each second after wake.";
+
+VAL_ 304 Current_Flags 0 "Valid" 128 "Sentinel_discard";
+VAL_ 256 Pack_Flags 0 "Valid";
+VAL_ 272 Output_Flags 0 "Valid";
+VAL_ 288 Companion_Flags 0 "Valid";
