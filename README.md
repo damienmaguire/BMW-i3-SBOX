@@ -38,6 +38,8 @@ The SBOX connects to the SME (BMS) via a white 12 pin connector.
 
 SBOX Local-CAN is **500 kbit/s**.
 
+A machine-readable copy of the encodings below is in [`bmw_i3_sbox.dbc`](bmw_i3_sbox.dbc) (v0.1).
+
 ## Local-CAN — who talks
 
 Bench logs with the SME present and with the SBOX powered alone:
@@ -82,7 +84,7 @@ About every tenth `0x130` has `B5 = 0x80` and a garbage payload. Same cadence as
 Values from 0–30 V PSU sweeps on each HV side and 0–10 A current sweeps through the closed **negative** contactor. Contactores otherwise open. No traction load.
 
 | ID | Signal | Decode | Evidence |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | `0x100` | Pack / battery-side voltage | `u16le(B0,B1) / 1000` → volts | Three ramps on battery posts, peak **31552 mV**. Stays ~0.1 V when the PSU is on the output posts |
 | `0x110` | Vehicle / output-side voltage | `u16le(B0,B1) / 1000` → volts | Follows output-side PSU ramps. Does not follow pack-side ramps. **Peaks at ~17.5 V** in every 30 V output sweep so far — scale or sense-point still to confirm with a meter on the output busbars |
 | `0x130` | Pack current | `i16le(B0,B1) / 1000` → amps, **only if B5 == 0x00** | 10 A from battery side peaked **+10447**. 10 A from car side peaked **−10305**. Idle / voltage-only logs stay within about ±0.2 A |
