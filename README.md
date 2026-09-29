@@ -83,13 +83,6 @@ Near-zero voltage noise arrives as a negative i32 (`B2 B3 = FF FF`). Reading onl
 
 ## Encodings (bench)
 
-| ID | Signal | Decode | Evidence |
-| --- | --- | --- |
-| `0x100` | Pack / battery-side voltage | `i32le(B0-B3) / 1000` → volts, clamp `<0` to 0 | 0–325 V Variac/rectifier sweep. B2 becomes `01` at 65.784 V (`F8 00 01 00`). Peak **326307 mV** (`A3 FA 04 00`) |
-| `0x110` | Vehicle / output-side voltage | same i32le mV | Follows output posts. With contactors closed, tracks pack within ~0.1 V to **315 V**. Open contactors sit near 0 V |
-| `0x130` | Pack current | `i16le(B0,B1) / 1000` → amps, **only if B5 == 0x00** | 10 A from battery side peaked **+10447**. 10 A from car side peaked **−10305**. 42 V into 10 Ω → **−4.17 A / −175 W** |
-| `0x120` | Output-side companion | signed LE | Not traction current and not watts. Do not map to `idc` |
-
 No dedicated power frame on Local-CAN. Compute `P = udc * idc` in the VCU.
 
 Current sign:
