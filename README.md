@@ -38,7 +38,7 @@ The SBOX connects to the SME (BMS) via a white 12 pin connector.
 
 SBOX Local-CAN is **500 kbit/s**.
 
-A machine-readable copy of the encodings below is in [`bmw_i3_sbox.dbc`](bmw_i3_sbox.dbc) (v0.1).
+A machine-readable copy of the encodings below is in [`bmw_i3_sbox.dbc`](bmw_i3_sbox.dbc) (v0.2).
 
 ## Local-CAN — who talks
 
@@ -71,7 +71,7 @@ SME-only frames seen so far:
 
 | Bytes | Meaning |
 | --- | --- |
-| B0–B3 | Little-endian analog value. Voltages fit in 16 bits; current uses signed 16 bits with sign-extended high bytes |
+| B0–B3 | Little-endian analog. Voltage is **signed 32-bit millivolts** (B2 is the high byte and ticks at 65.536 V). Current is signed 16-bit mA in B0–B1 with sign-extended B2–B3 |
 | B4 | Alive counter in the high nibble, `0x00, 0x10, … 0xF0`, then wrap |
 | B5 | Flags. `0x00` = valid analog. On `0x130`, `0x80` marks a sentinel frame — discard the analog |
 | B6 | Changes with the counter (CRC input, not the measurement) |
@@ -79,23 +79,25 @@ SME-only frames seen so far:
 
 About every tenth `0x130` has `B5 = 0x80` and a garbage payload. Same cadence as `0x050` / `0x140`. Ignore those frames.
 
-## Encodings (bench)
+Near-zero voltage noise arrives as a negative i32 (`B2 B3 = FF FF`). Reading only B0–B1 unsigned makes that look like 65.5 V. Clamp values below zero to 0.
 
-Values from 0–30 V PSU sweeps on each HV side and 0–10 A current sweeps through the closed **negative** contactor. Contactores otherwise open. No traction load.
+## Encodings (bench)
 
 | ID | Signal | Decode | Evidence |
 | --- | --- | --- |
-| `0x100` | Pack / battery-side voltage | `u16le(B0,B1) / 1000` → volts | Three ramps on battery posts, peak **31552 mV**. Stays ~0.1 V when the PSU is on the output posts |
-| `0x110` | Vehicle / output-side voltage | `u16le(B0,B1) / 1000` → volts | Follows output-side PSU ramps. Does not follow pack-side ramps. **Peaks at ~17.5 V** in every 30 V output sweep so far — scale or sense-point still to confirm with a meter on the output busbars |
-| `0x130` | Pack current | `i16le(B0,B1) / 1000` → amps, **only if B5 == 0x00** | 10 A from battery side peaked **+10447**. 10 A from car side peaked **−10305**. Idle / voltage-only logs stay within about ±0.2 A |
-| `0x120` | Output-side companion | signed LE | Tracks output voltage on V sweeps. Not traction current. Do not map to `idc` |
+| `0x100` | Pack / battery-side voltage | `i32le(B0-B3) / 1000` → volts, clamp `<0` to 0 | 0–325 V Variac/rectifier sweep. B2 becomes `01` at 65.784 V (`F8 00 01 00`). Peak **326307 mV** (`A3 FA 04 00`) |
+| `0x110` | Vehicle / output-side voltage | same i32le mV | Follows output posts. With contactors closed, tracks pack within ~0.1 V to **315 V**. Open contactors sit near 0 V |
+| `0x130` | Pack current | `i16le(B0,B1) / 1000` → amps, **only if B5 == 0x00** | 10 A from battery side peaked **+10447**. 10 A from car side peaked **−10305**. 42 V into 10 Ω → **−4.17 A / −175 W** |
+| `0x120` | Output-side companion | signed LE | Not traction current and not watts. Do not map to `idc` |
 
-Current sign from the 10 A tests:
+No dedicated power frame on Local-CAN. Compute `P = udc * idc` in the VCU.
+
+Current sign:
 
 - Current injected from the **battery** side of the closed negative pole → `0x130` **positive**
-- Current injected from the **car** side → `0x130` **negative**
+- Current leaving the pack toward the **car** side → `0x130` **negative**
 
-Working current scale is **1 count ≈ 1 mA**. A clamp meter on the same cable at the top of a ramp will confirm or nudge the factor.
+Working current scale is **1 count ≈ 1 mA**.
 
 ## Other SBOX frames (not fully decoded)
 
@@ -107,16 +109,17 @@ Working current scale is **1 count ≈ 1 mA**. A clamp meter on the same cable a
 | `0x170` | ~100 ms. `00 00 00 xx 50 81 05` plus CRC |
 | `0x210` | Static `75 69 00 05 06 5F 01 03` |
 
-## ZombieVerter scratch map
+## ZombieVerter map (`ShuntType = 5` / i3SBOX on branch `i3Sbox_testing`)
 
 ```text
-udc2 = u16le(id 0x100 B0-B1) / 1000.0    // pack V
-udc  = u16le(id 0x110 B0-B1) / 1000.0    // output V, confirm 30 V peak
-idc  = i16le(id 0x130 B0-B1) / 1000.0    // amps; skip frame if B5 & 0x80
+udc2 = i32le(id 0x100 B0-B3) / 1000.0    // pack V, clamp <0 to 0
+udc  = i32le(id 0x110 B0-B3) / 1000.0    // output V, clamp <0 to 0
+idc  = i16le(id 0x130 B0-B1) / 1000.0    // amps; skip frame if B5 == 0x80
+power = udc * idc / 1000.0               // kW, computed — no CAN watt field
 alive = (id 0x100 B4 >> 4) incrementing
 ```
 
-Existing `bmw_sbox.cpp` (`ShuntType=2`, PHEV IDs `0x100` / `0x300`) will not speak this protocol. A new shunt class is required.
+Existing `bmw_sbox.cpp` (`ShuntType=2`, PHEV IDs `0x100` / `0x300`) will not speak this protocol.
 
 Contactors: VCU GPIO on pins 2 / 4 / 6 as above. Do not expect Local-CAN frames to close the Panasonic pair.
 
@@ -133,11 +136,13 @@ Raw Savvy-style CSV captures are in [`CAN_Logs/`](CAN_Logs/).
 | `sboxonown_0_30v_2timescarside.csv` | SBOX alone, 0–30 V on output posts |
 | `sboxonown_0_10AmpSweep_frombattside.csv` | SBOX alone, neg contactor closed, 0–10 A from battery side |
 | `sboxonown_0_10AmpSweep_fromcarside.csv` | SBOX alone, neg contactor closed, 0–10 A from car side |
+| `sboxandzom_4A.csv` | SBOX + Zombie, 42 V PSU, 10 Ω car-side load (~4.2 A / 175 W) |
+| `sboxandzom_0_325v.csv` | SBOX + Zombie, 0–325 V on battery posts, contactors open |
+| `sboxandzom_0_325v_closedcons.csv` | SBOX + Zombie, 0–325 V, contactors closed |
 
 ## Still open
 
 - CRC polynomial on B7 (usual CRC8 polys over B0–B6 did not match; ID may be in the input).
-- Why `0x110` tops out near 17.5 V on every output-side 30 V sweep.
 - Exact `0x120` meaning.
 - Isolation / weld-detect / heater PWM (present on some 904 units).
 - Full SME wake and any contactor commands the SME would send if we kept it in the loop.
