@@ -1,4 +1,4 @@
-VERSION "BMW i3 SBOX Local-CAN 0.1"
+VERSION "BMW i3 SBOX Local-CAN 0.2"
 
 
 NS_ :
@@ -52,18 +52,16 @@ BA_ "ProtocolType" "CAN";
 
 
 BO_ 256 SBOX_PackVoltage: 8 SBOX
- SG_ Pack_V : 0|16@1+ (0.001,0) [0|65.535] "V" ZombieVerter
- SG_ Pack_mV : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
- SG_ Pack_Raw32 : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+ SG_ Pack_V : 0|32@1- (0.001,0) [0|500] "V" ZombieVerter
+ SG_ Pack_mV : 0|32@1- (1,0) [0|500000] "mV" Vector__XXX
  SG_ Pack_Alive : 36|4@1+ (1,0) [0|15] "" Vector__XXX
  SG_ Pack_Flags : 40|8@1+ (1,0) [0|255] "" Vector__XXX
  SG_ Pack_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
  SG_ Pack_CRC : 56|8@1+ (1,0) [0|255] "" Vector__XXX
 
 BO_ 272 SBOX_OutputVoltage: 8 SBOX
- SG_ Output_V : 0|16@1+ (0.001,0) [0|65.535] "V" ZombieVerter
- SG_ Output_mV : 0|16@1+ (1,0) [0|65535] "mV" Vector__XXX
- SG_ Output_Raw32 : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+ SG_ Output_V : 0|32@1- (0.001,0) [0|500] "V" ZombieVerter
+ SG_ Output_mV : 0|32@1- (1,0) [0|500000] "mV" Vector__XXX
  SG_ Output_Alive : 36|4@1+ (1,0) [0|15] "" Vector__XXX
  SG_ Output_Flags : 40|8@1+ (1,0) [0|255] "" Vector__XXX
  SG_ Output_B6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
@@ -158,13 +156,13 @@ BA_ "GenMsgCycleTime" BO_ 528 1030;
 BA_ "GenMsgCycleTime" BO_ 336 20;
 BA_ "GenMsgCycleTime" BO_ 352 1000;
 
-CM_ "BMW i3 SBOX (PN 61278648904) private Local-CAN at 500 kbit/s. Not the PHEV SBox 0x100/0x300 protocol. Contactors are GPIO, not CAN. Version 0.1 - 2026-09-26.";
+CM_ "BMW i3 SBOX (PN 61278648904) private Local-CAN at 500 kbit/s. Not the PHEV SBox 0x100/0x300 protocol. Contactors are GPIO, not CAN. Version 0.2 - 2026-09-29. Voltages are i32le mV.";
 CM_ BU_ SBOX "Pack-internal safety / contactor box. Emits measurement frames with only +12V on pins 7/8.";
 CM_ BU_ SME "Speicher Management Elektronik. Optional. Not required to read HV.";
 CM_ BU_ ZombieVerter "Intended VCU listener.";
 
-CM_ BO_ 256 "Pack / battery-side voltage. Three 0-30 V ramps on battery posts peaked 31552 mV. Stays ~0.1 V when PSU is on the output posts. Map to Zombie udc2.";
-CM_ BO_ 272 "Vehicle / output-side voltage. Follows output-side PSU ramps. Peaked ~17.5 V on every 30 V output sweep so far - scale or sense point still to confirm. Map to Zombie udc.";
+CM_ BO_ 256 "Pack / battery-side voltage. i32le mV on B0-B3. B2 ticks at 65.536 V. Bench peak 326307 mV (A3 FA 04 00). Map to Zombie udc2.";
+CM_ BO_ 272 "Vehicle / output-side voltage. Same i32le mV layout as 0x100. Tracks pack within ~0.1 V with contactors closed to 315 V. Clamp negatives to 0. Map to Zombie udc.";
 CM_ BO_ 288 "Tracks output-side voltage on V sweeps. Not traction current. Do not map to idc. Scale unconfirmed - raw signed values only.";
 CM_ BO_ 304 "Pack current through the shunt. 1 count = 1 mA. Use only when Current_Flags == 0x00. Current_Flags == 0x80 is a sentinel (~every 10th frame) - discard analog. Battery-side 10 A -> +10447. Car-side 10 A -> -10305. Map to Zombie idc.";
 CM_ BO_ 80 "Almost always 40 54 FF FF DF FF. Period matches the 0x130 sentinel cadence.";
@@ -175,8 +173,8 @@ CM_ BO_ 528 "Static 75 69 00 05 06 5F 01 03 in every log so far.";
 CM_ BO_ 336 "SME only. Constant FD F4 40 A7 in the captured logs.";
 CM_ BO_ 352 "SME only. Constant 00 00 00 0E in the captured logs.";
 
-CM_ SG_ 256 Pack_V "u16le(B0,B1) / 1000. Zombie: udc2.";
-CM_ SG_ 272 Output_V "u16le(B0,B1) / 1000. Zombie: udc. Confirm against a meter; 17.5 V cap seen on bench.";
+CM_ SG_ 256 Pack_V "i32le(B0-B3) / 1000. Clamp <0 to 0. Zombie: udc2.";
+CM_ SG_ 272 Output_V "i32le(B0-B3) / 1000. Clamp <0 to 0. Zombie: udc.";
 CM_ SG_ 304 Pack_Current "i16le(B0,B1) / 1000 amps. IGNORE this signal when Current_Flags == 0x80.";
 CM_ SG_ 304 Current_Flags "0x00 = analog valid. 0x80 = sentinel, discard current.";
 CM_ SG_ 256 Pack_Alive "B4 high nibble, 0-F wrap.";
