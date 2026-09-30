@@ -138,4 +138,8 @@ Raw Savvy-style CSV captures are in [`CAN_Logs/`](CAN_Logs/).
 - CRC polynomial on B7 (usual CRC8 polys over B0–B6 did not match; ID may be in the input).
 - Exact `0x120` meaning.
 - Isolation / weld-detect / heater PWM (present on some 904 units).
-- Full SME wake and any contactor commands the SME would send if we kept it in the loop.
+  
+A breakout board has been designed to replace the SME and bring the Sbox connections to screw terminals :
+
+<img width="1491" height="935" alt="i3_Sbox_breakout1" src="https://github.com/user-attachments/assets/eac00e17-f79e-4c3d-88f5-c13c55a23ef2" />
+
